@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetDrive - Telemetry System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* === LOGIN SCREEN === */
+        .login-container {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 40px;
+            width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .login-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00ff88;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            background: #00cc6f;
+            transform: translateY(-2px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .login-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .login-status.error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+            color: #ff5555;
+        }
+
+        .login-status.connecting {
+            background: rgba(255, 200, 0, 0.1);
+            border: 1px solid #ffc800;
+            color: #ffc800;
+        }
+
+        .credentials-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 5px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .credentials-info strong {
+            color: #00ff88;
+        }
+
+        /* === DASHBOARD === */
+        .dashboard {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #00ff88;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-info .username {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .user-info .role {
+            font-size: 14px;
+            color: #00ff88;
+            margin-top: 5px;
+        }
+
+        .logout-btn {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: transparent;
+            border: 1px solid #666;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        /* === TELEMETRY === */
+        .telemetry-section {
+            margin-bottom: 30px;
+        }
+
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .telemetry-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .telemetry-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .telemetry-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .telemetry-card:hover {
+            border-color: #00ff88;
+            transform: translateY(-5px);
+        }
+
+        .telemetry-card .label {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .telemetry-card .value {
+            font-size: 42px;
+            font-weight: 700;
+            color: #00ff88;
+            line-height: 1;
+        }
+
+        .telemetry-card .unit {
+            font-size: 18px;
+            color: #666;
+            margin-left: 5px;
+        }
+
+        .car-display {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .car-display img {
+            max-width: 300px;
+            width: 100%;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.3));
+        }
+
+        /* === ADMIN SECTION === */
+        .admin-section {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 30px;
+        }
+
+        .admin-section h2 {
+            color: #00ff88;
+            margin-bottom: 25px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .command-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .command-btn {
+            padding: 15px 25px;
+            background: transparent;
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .command-btn:hover {
+            background: #00ff88;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .users-btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 2px solid #00aaff;
+            color: #00aaff;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .users-btn:hover {
+            background: #00aaff;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 170, 255, 0.3);
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .status-message.success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .status-message.error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+            color: #ff5555;
+        }
+
+        /* === MODAL === */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .modal-header h2 {
+            color: #00ff88;
+            font-size: 24px;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #666;
+            font-size: 32px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #ff5555;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th {
+            background: #0a0a0a;
+            padding: 15px;
+            text-align: left;
+            color: #00ff88;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 12px;
+        }
+
+        .users-table td {
+            padding: 15px;
+            border-top: 1px solid #333;
+            color: #aaa;
+        }
+
+        .users-table tbody tr:hover {
+            background: rgba(0, 255, 136, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="login-container">
+            <h1>NetDrive</h1>
+        <form onsubmit="return false;">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" placeholder="Ingresa tu usuario" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="Ingresa tu contraseña" autocomplete="current-password">
+            </div>
+            <button type="button" id="loginBtn" class="login-btn">Iniciar Sesión</button>
+            <div id="loginStatus" class="login-status hidden"></div>
+        </form>
+        <div class="credentials-info">
+            <strong>Usuarios de prueba:</strong><br>
+            • admin / admin123 (Administrador)<br>
+            • observer / observer123 (Observador)
+        </div>
+        </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="dashboard hidden">
+        <div class="header">
+            <h1>NetDrive - Telemetry System</h1>
+            <div class="user-info">
+                <div class="username" id="dashboardUsername">Usuario</div>
+                <div class="role" id="dashboardRole">Rol</div>
+                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+            </div>
+                </div>
+
+        <!-- Telemetry -->
+        <div class="telemetry-section">
+            <div class="telemetry-grid">
+                <div class="telemetry-card">
+                    <div class="label">Velocidad</div>
+                    <div class="value">
+                        <span id="speed">0</span>
+                        <span class="unit">km/h</span>
+                    </div>
+                </div>
+                <div class="telemetry-card">
+                    <div class="label">Dirección</div>
+                    <div class="value">
+                        <span id="direction">N</span>
+                    </div>
+                </div>
+                <div class="telemetry-card">
+                    <div class="label">Batería</div>
+                    <div class="value">
+                        <span id="battery">100</span>
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+                <div class="telemetry-card">
+                    <div class="label">Temperatura</div>
+                    <div class="value">
+                        <span id="temperature">25</span>
+                        <span class="unit">°C</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="car-display">
+                <img src="images/auto.png" alt="Vehicle" id="carImage">
+            </div>
+            </div>
+
+        <!-- Admin Controls -->
+        <div id="adminControls" class="admin-section hidden">
+            <h2>Panel de Control - Administrador</h2>
+            <div class="command-grid">
+                <button class="command-btn" onclick="sendCommand('SPEED UP')">Acelerar</button>
+                <button class="command-btn" onclick="sendCommand('SLOW DOWN')">Frenar</button>
+                <button class="command-btn" onclick="sendCommand('TURN LEFT')">Girar Izquierda</button>
+                <button class="command-btn" onclick="sendCommand('TURN RIGHT')">Girar Derecha</button>
+            </div>
+            <button class="users-btn" onclick="showUsersModal()">Ver Usuarios Conectados</button>
+            <div id="commandStatus" class="status-message hidden"></div>
+        </div>
+                </div>
+
+    <!-- USERS MODAL -->
+    <div id="usersModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Usuarios Conectados</h2>
+                <button class="modal-close" onclick="closeUsersModal()">&times;</button>
+                </div>
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Dirección IP</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+        let socket = null;
+        let currentUser = null;
+        let currentRole = null;
+        let awaitingAuth = false;
+        let awaitingUserList = false;
+        
+        // ====== SISTEMA DE VERIFICACIÓN DE RESPUESTAS ======
+        let clientResponse = "";  // Variable global: "", "OK", "ERROR"
+        let responseInterval = null;  // Intervalo para enviar STATUS
+
+        // === PROTOCOL FUNCTIONS ===
+        function createMessage(action, data) {
+            const actionPadded = action.padEnd(12, ' ');
+            const dataPadded = data.padEnd(150, ' ');
+            return `PTT${actionPadded}${dataPadded}END`;
+        }
+
+        function parseResponse(raw) {
+            try {
+                const pttIndex = raw.indexOf('PTT');
+                const endIndex = raw.indexOf('END');
+                
+                if (pttIndex === -1 || endIndex === -1) {
+                    console.warn('[PARSE] Mensaje sin formato PTT válido');
+                    clientResponse = "ERROR";  // Formato inválido
+                    return null;
+                }
+
+                const action = raw.substring(pttIndex + 3, pttIndex + 15).trim();
+                const data = raw.substring(pttIndex + 15, endIndex).trim();
+                
+                return { action, data };
+            } catch (e) {
+                console.error('[PARSE] Error parseando:', e);
+                clientResponse = "ERROR";  // Error de parseo
+                return null;
+            }
+        }
+
+        // ====== HILO DE RESPUESTAS (Similar a Python) ======
+        function sendStatusToServer() {
+            // Si no hay respuesta pendiente, no hacer nada
+            if (!clientResponse || !socket || socket.readyState !== WebSocket.OPEN) {
+                return;
+            }
+
+            console.log(`[STATUS] Enviando: ${clientResponse}`);
+            const statusMessage = createMessage('STATUS', clientResponse);
+            socket.send(statusMessage);
+            
+            // Limpiar respuesta después de enviar
+            clientResponse = "";
+        }
+
+        function startResponseThread() {
+            // Detener intervalo previo si existe
+            if (responseInterval) {
+                clearInterval(responseInterval);
+            }
+            
+            // Verificar cada 2 segundos (igual que Python)
+            responseInterval = setInterval(() => {
+                if (!clientResponse) {
+                    console.log('[CLIENTE] No hay respuestas pendientes');
+                } else {
+                    sendStatusToServer();
+                }
+            }, 2000);
+            
+            console.log('[RESPONSE THREAD] Iniciado - verificando cada 2s');
+        }
+
+        function stopResponseThread() {
+            if (responseInterval) {
+                clearInterval(responseInterval);
+                responseInterval = null;
+                console.log('[RESPONSE THREAD] Detenido');
+            }
+        }
+
+        // === LOGIN ===
+        document.getElementById('loginBtn').addEventListener('click', doLogin);
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') doLogin();
+        });
+
+        function showLoginStatus(message, type) {
+            const statusDiv = document.getElementById('loginStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = `login-status ${type}`;
+            statusDiv.classList.remove('hidden');
+        }
+
+        function doLogin() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (!username || !password) {
+                showLoginStatus('Ingresa usuario y contraseña', 'error');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            showLoginStatus('Conectando...', 'connecting');
+
+            socket = new WebSocket('ws://127.0.0.1:8080');
+
+    socket.onopen = () => {
+                showLoginStatus('Autenticando...', 'connecting');
+                
+                const loginData = `${username};${password}`;
+                const message = createMessage('LOGIN', loginData);
+                
+                awaitingAuth = true;
+                currentUser = username;
+                socket.send(message);
+            };
+
+            socket.onmessage = (event) => {
+                const parsed = parseResponse(event.data);
+                
+                if (!parsed) {
+                    return;
+                }
+
+                console.log('[MESSAGE] Mensaje recibido:', parsed.action, '|', parsed.data.substring(0, 50));
+
+                // Handle authentication response
+                if (awaitingAuth && parsed.action === 'OK') {
+                    awaitingAuth = false;
+                    
+                    // Extract role
+                    const roleMatch = parsed.data.match(/role=(\w+)/);
+                    currentRole = roleMatch ? roleMatch[1] : 'OBSERVER';
+                    
+                    showDashboard();
+                    startResponseThread();  // INICIAR HILO DE RESPUESTAS
+                    return;
+                }
+
+                // Handle authentication error
+                if (awaitingAuth && parsed.action === 'ERROR') {
+                    awaitingAuth = false;
+                    document.getElementById('loginBtn').disabled = false;
+                    showLoginStatus('Credenciales incorrectas', 'error');
+                    socket.close();
+                    return;
+                }
+
+                // Handle telemetry data
+                if (parsed.action === 'DATA') {
+                    try {
+                        updateTelemetry(parsed.data);
+                        clientResponse = "OK";  // Telemetría procesada correctamente
+                    } catch (error) {
+                        console.error('[TELEMETRY] Error actualizando:', error);
+                        clientResponse = "ERROR";  // Error procesando telemetría
+                    }
+                    return;
+                }
+
+                // Handle command responses
+                if (parsed.action === 'OK' && parsed.data.includes('COMMAND_OK')) {
+                    showCommandStatus('Comando ejecutado correctamente', 'success');
+                    clientResponse = "OK";  // Comando procesado
+                    return;
+                }
+
+                if (parsed.action === 'DENIED') {
+                    showCommandStatus('Permiso denegado', 'error');
+                    clientResponse = "OK";  // Mensaje recibido (aunque denegado)
+                    return;
+                }
+
+                // Handle user list
+                if (awaitingUserList && parsed.action === 'OK') {
+                    console.log('[LIST] Lista de usuarios recibida:', parsed.data);
+                    awaitingUserList = false;
+                    displayUsers(parsed.data);
+                    clientResponse = "OK";  // Lista procesada
+                    return;
+                }
+            };
+
+            socket.onerror = (error) => {
+                console.error('[WEBSOCKET] Error:', error);
+                showLoginStatus('Error de conexión', 'error');
+                document.getElementById('loginBtn').disabled = false;
+                awaitingAuth = false;
+                clientResponse = "ERROR";  // Error de conexión
+            };
+
+            socket.onclose = () => {
+                stopResponseThread();  // Detener hilo al cerrar conexión
+                
+                if (awaitingAuth) {
+                    showLoginStatus('Conexión cerrada', 'error');
+                    document.getElementById('loginBtn').disabled = false;
+                    awaitingAuth = false;
+                }
+            };
+        }
+
+        // === DASHBOARD ===
+        function showDashboard() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            
+            document.getElementById('dashboardUsername').textContent = currentUser;
+            document.getElementById('dashboardRole').textContent = currentRole;
+            
+            // Mostrar panel de admin SOLO si es ADMIN
+            const adminControls = document.getElementById('adminControls');
+            if (currentRole === 'ADMIN') {
+                adminControls.classList.remove('hidden');
+            } else {
+                adminControls.classList.add('hidden');
+            }
+        }
+
+        function updateTelemetry(data) {
+            const speedMatch = data.match(/speed=([\d.]+)/);
+            const dirMatch = data.match(/dir=([\d.]+)/);
+            const batteryMatch = data.match(/battery=([\d.]+)/);
+            const tempMatch = data.match(/temp=([\d.]+)/);
+
+            if (speedMatch) document.getElementById('speed').textContent = speedMatch[1];
+            if (dirMatch) {
+                const degrees = parseFloat(dirMatch[1]);
+                const cardinal = degreesToCardinal(degrees);
+                document.getElementById('direction').textContent = `${cardinal} (${degrees}°)`;
+            }
+            if (batteryMatch) document.getElementById('battery').textContent = batteryMatch[1];
+            if (tempMatch) document.getElementById('temperature').textContent = tempMatch[1];
+        }
+
+        function degreesToCardinal(degrees) {
+            const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+            const index = Math.round(degrees / 45) % 8;
+            return directions[index];
+        }
+
+        function logout() {
+            stopResponseThread();  // Detener hilo al logout
+            
+            if (socket) {
+                socket.close();
+            }
+            currentUser = null;
+            currentRole = null;
+            clientResponse = "";  // Limpiar respuesta pendiente
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('loginStatus').classList.add('hidden');
+        }
+
+        // === ADMIN FUNCTIONS ===
+        function sendCommand(command) {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                showCommandStatus('No conectado al servidor', 'error');
+                return;
+            }
+
+            const message = createMessage('COMMAND', command);
+            socket.send(message);
+            showCommandStatus('Enviando comando...', 'success');
+        }
+
+        function showCommandStatus(message, type) {
+            const statusDiv = document.getElementById('commandStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message ${type}`;
+            statusDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                statusDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        function showUsersModal() {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                showCommandStatus('No conectado al servidor', 'error');
+                return;
+            }
+
+            console.log('[LIST] Solicitando lista de usuarios...');
+            const message = createMessage('LIST', '');
+            awaitingUserList = true;
+            socket.send(message);
+            document.getElementById('usersModal').classList.remove('hidden');
+        }
+
+        function closeUsersModal() {
+            document.getElementById('usersModal').classList.add('hidden');
+        }
+
+        function displayUsers(data) {
+            console.log('[LIST] Parseando usuarios:', data);
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            // Parse user data: "user1:ADMIN:192.168.1.1,user2:OBSERVER:192.168.1.2"
+            const users = data.split(',').filter(u => u.trim());
+            
+            console.log('[LIST] Usuarios encontrados:', users.length);
+            
+            users.forEach(userStr => {
+                const parts = userStr.trim().split(':');
+                console.log('  - Partes:', parts);
+                
+                if (parts.length >= 3 && parts[1] !== 'NONE') {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${parts[0]}</td>
+                        <td>${parts[1]}</td>
+                        <td>${parts[2]}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            if (tbody.children.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: #666;">No hay usuarios conectados</td></tr>';
+            }
+        }
+</script>
+</body>
+</html>

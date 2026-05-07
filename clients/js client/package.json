@@ -1,0 +1,23 @@
+{
+  "name": "telemetry-client-js",
+  "version": "1.0.0",
+  "description": "Cliente de telemetría en JavaScript con bridge WebSocket-TCP",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js & npx http-server -p 3000 -o",
+    "server": "node server.js",
+    "web": "npx http-server -p 3000 -o",
+    "dev": "npx live-server --port=3000 --open=/index.html"
+  },
+  "keywords": ["telemetry", "client", "javascript", "websocket", "tcp"],
+  "author": "Samuel",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  }
+}
+
