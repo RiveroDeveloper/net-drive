@@ -11,67 +11,62 @@ void initCar(struct CarState *car) {
     car->speed = 0;
     car->battery = 100;
     car->temp = 25.0;
-    car->direction = 0; // 0 = norte
+    car->direction = 0; // 0 = north
 }
 
 void updateCarTelemetry(struct CarState *car, const char *command) {
-    // Limpiar el comando (eliminar espacios al final y null bytes)
+    // Strip trailing spaces / null padding from command
     char clean_command[150];
     strncpy(clean_command, command, sizeof(clean_command) - 1);
     clean_command[sizeof(clean_command) - 1] = '\0';
     
-    // Remover espacios al final
     int len = strlen(clean_command);
     while (len > 0 && (clean_command[len - 1] == ' ' || clean_command[len - 1] == '\0')) {
         clean_command[len - 1] = '\0';
         len--;
     }
     
-    printf("[CAR] Procesando comando: '%s' (len=%d)\n", clean_command, len);
-    printf("[CAR] Estado anterior: speed=%d dir=%d battery=%d temp=%.1f\n", 
+    printf("[CAR] Processing command: '%s' (len=%d)\n", clean_command, len);
+    printf("[CAR] Previous state: speed=%d dir=%d battery=%d temp=%.1f\n", 
            car->speed, car->direction, car->battery, car->temp);
     
-    // Cambiar velocidad
     if (strcmp(clean_command, "SPEED UP") == 0) {
         if (car->speed < 120) {
             car->speed += 10;
-            printf("[CAR] Velocidad incrementada a %d km/h\n", car->speed);
+            printf("[CAR] Speed increased to %d km/h\n", car->speed);
         } else {
-            printf("[CAR] Velocidad maxima alcanzada\n");
+            printf("[CAR] Maximum speed reached\n");
         }
     } else if (strcmp(clean_command, "SLOW DOWN") == 0) {
         if (car->speed > 0) {
             car->speed -= 10;
             if (car->speed < 0) car->speed = 0;
-            printf("[CAR] Velocidad reducida a %d km/h\n", car->speed);
+            printf("[CAR] Speed reduced to %d km/h\n", car->speed);
         } else {
-            printf("[CAR] Velocidad ya es 0\n");
+            printf("[CAR] Speed already 0\n");
         }
     }
-    // Cambiar dirección
     else if (strcmp(clean_command, "TURN LEFT") == 0) {
         car->direction = (car->direction - 45 + 360) % 360;
-        printf("[CAR] Girado a la izquierda, nueva direccion: %d grados\n", car->direction);
+        printf("[CAR] Turned left, new heading: %d deg\n", car->direction);
     } else if (strcmp(clean_command, "TURN RIGHT") == 0) {
         car->direction = (car->direction + 45) % 360;
-        printf("[CAR] Girado a la derecha, nueva direccion: %d grados\n", car->direction);
+        printf("[CAR] Turned right, new heading: %d deg\n", car->direction);
     } else {
-        printf("[CAR] Comando no reconocido: '%s'\n", clean_command);
+        printf("[CAR] Unknown command: '%s'\n", clean_command);
     }
 
-    // Batería se reduce con cada comando
     if (car->battery > 0) {
         car->battery -= 1;
     }
 
-    // Temperatura depende de la velocidad
     if (car->speed > 0 && car->temp < 50.0) {
         car->temp += 0.5;
     } else if (car->speed == 0 && car->temp > 20.0) {
         car->temp -= 0.3;
     }
     
-    printf("[CAR] Estado nuevo: speed=%d dir=%d battery=%d temp=%.1f\n", 
+    printf("[CAR] New state: speed=%d dir=%d battery=%d temp=%.1f\n", 
            car->speed, car->direction, car->battery, car->temp);
 }
 

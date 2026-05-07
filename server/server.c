@@ -5,15 +5,15 @@
 #include <stdbool.h>    // bool, true, false
 #include <stdlib.h>     // malloc, free
 
-//PTT- Protocolo de Transferencia de Telemetría
+// PTT – telemetry transfer (demo helpers)
 struct Message {
     char *header; // "PTT"
-    char *action; // "UPLOAD" o "DOWNLOAD"
-    char *data;   // Datos de telemetría (entrada por teclado)
+    char *action; // e.g. UPLOAD / DOWNLOAD
+    char *data;   // payload (stdin in this demo)
     char *footer; // "END"
 };
 
-// Genera un buffer contiguo con todos los campos concatenados
+// Build one contiguous wire buffer
 char *parseMessage(struct Message msg) {
     int total_size = strlen(msg.header) + strlen(msg.action) + strlen(msg.data) + strlen(msg.footer) + 4;
     char *buffer = malloc(total_size);
@@ -22,7 +22,7 @@ char *parseMessage(struct Message msg) {
         exit(1);
     }
 
-    // Concatenar los campos en orden
+    // Concatenate fields
     sprintf(buffer, "%s%s%s%s", msg.header, msg.action, msg.data, msg.footer);
     return buffer;
 }
@@ -57,7 +57,7 @@ int main() {
         memset(buffer, 0, sizeof(buffer));
         int bytes = read(client_fd, buffer, sizeof(buffer));
 
-        if (bytes <= 0) break; // conexión cerrada por el cliente
+        if (bytes <= 0) break; // client closed
 
         printf("Client message: %s\n", buffer);
 
@@ -66,13 +66,11 @@ int main() {
             break;
         }
 
-        //Leer mensaje de telemetría desde teclado
         char input[256];
-        printf("Escribe el mensaje de telemetría a enviar: ");
+        printf("Enter telemetry payload to send: ");
         fgets(input, sizeof(input), stdin);
-        input[strcspn(input, "\n")] = 0; // quitar salto de línea
+        input[strcspn(input, "\n")] = 0;
 
-        //Crear mensaje dinámico
         struct Message data;
         data.header = malloc(strlen("PTT") + 1);
         data.action = malloc(strlen("SEND") + 1);
@@ -84,13 +82,10 @@ int main() {
         strcpy(data.data, input);
         strcpy(data.footer, "END");
 
-        // Convertir mensaje a buffer para enviar
         char *msg_buffer = parseMessage(data);
 
-        // Enviar el mensaje
         send(client_fd, msg_buffer, strlen(msg_buffer), 0);
 
-        //Limpiar memoria
         free(data.header);
         free(data.action);
         free(data.data);

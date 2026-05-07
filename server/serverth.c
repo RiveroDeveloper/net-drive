@@ -6,12 +6,12 @@
 #include <stdlib.h>     // malloc, free, exit
 #include <pthread.h>    // pthreads
 
-// PTT - Protocolo de Transferencia de Telemetría
+// PTT – telemetry transfer (threaded demo)
 struct Message {
-    char header[4];   // "PTT"
-    char action[12];  // "UPLOAD" o "DOWNLOAD"
-    char data[150];   // Datos de telemetría
-    char footer[4];   // "END"
+    char header[4];
+    char action[12];
+    char data[150];
+    char footer[4];
 };
 
 void parseMessage(struct Message msg, char *buffer) {
@@ -21,33 +21,32 @@ void parseMessage(struct Message msg, char *buffer) {
     memcpy(buffer + sizeof(msg.header) + sizeof(msg.action) + sizeof(msg.data), msg.footer, sizeof(msg.footer));
 }
 
-// Función que manejará cada cliente en un hilo
 void *handle_client(void *arg) {
     int client_fd = *(int *)arg;
-    free(arg);  // liberamos memoria reservada en el main
+    free(arg);
 
     char buffer[1024];
     bool connection_active = true;
 
-    printf("[HILO] Cliente conectado (fd=%d)\n", client_fd);
+    printf("[THREAD] Client connected (fd=%d)\n", client_fd);
 
     while (connection_active) {
         memset(buffer, 0, sizeof(buffer));
         int bytes = read(client_fd, buffer, sizeof(buffer));
 
         if (bytes <= 0) {
-            printf("[HILO] Cliente (fd=%d) desconectado.\n", client_fd);
+            printf("[THREAD] Client (fd=%d) disconnected.\n", client_fd);
             break;
         }
 
-        printf("[HILO] Mensaje recibido de fd=%d: %s\n", client_fd, buffer);
+        printf("[THREAD] Message from fd=%d: %s\n", client_fd, buffer);
 
         if (strncmp(buffer, "EXIT", 4) == 0) {
-            printf("[HILO] Cliente pidió salir.\n");
+            printf("[THREAD] Client requested quit.\n");
             break;
         }
 
-        // Crear mensaje de respuesta
+        // Build reply
         struct Message response;
         strcpy(response.header, "PTT");
         strcpy(response.action, "DATA");
@@ -58,7 +57,6 @@ void *handle_client(void *arg) {
         memset(msg_buffer, 0, sizeof(msg_buffer));
         parseMessage(response, msg_buffer);
 
-        // Enviar respuesta al cliente
         send(client_fd, msg_buffer, sizeof(response), 0);
     }
 
@@ -94,7 +92,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("[SERVIDOR] Escuchando en el puerto 2000...\n");
+    printf("[SERVER] Listening on port 2000...\n");
 
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
@@ -109,12 +107,11 @@ int main() {
             continue;
         }
 
-        // Crear un hilo para manejar este cliente
         pthread_t tid;
         pthread_create(&tid, NULL, handle_client, client_fd);
-        pthread_detach(tid);  // para que el hilo se libere solo al terminar
+        pthread_detach(tid);
 
-        printf("[SERVIDOR] Nuevo cliente conectado (fd=%d)\n", *client_fd);
+        printf("[SERVER] New client connected (fd=%d)\n", *client_fd);
     }
 
     close(socket_fd);

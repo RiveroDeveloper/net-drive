@@ -8,7 +8,7 @@
 
 #define printf(...) log_printf(__VA_ARGS__)
 
-// Base de datos de usuarios (hardcodeada para simplificar)
+// Hardcoded user DB (demo only)
 User users_db[] = {
     {"admin", "admin123", ROLE_ADMIN},
     {"observer", "observer123", ROLE_OBSERVER},
@@ -17,11 +17,10 @@ User users_db[] = {
 };
 int users_db_count = 4;
 
-// Sesiones activas
+// Active sessions
 Session active_sessions[MAX_SESSIONS] = {0};
 pthread_mutex_t sessions_lock = PTHREAD_MUTEX_INITIALIZER;
 
-// Inicializar sistema de autenticación
 void init_auth_system() {
     pthread_mutex_lock(&sessions_lock);
     for (int i = 0; i < MAX_SESSIONS; i++) {
@@ -31,7 +30,6 @@ void init_auth_system() {
     pthread_mutex_unlock(&sessions_lock);
 }
 
-// Autenticar usuario
 bool authenticate_user(const char *username, const char *password, UserRole *role) {
     for (int i = 0; i < users_db_count; i++) {
         if (strcmp(users_db[i].username, username) == 0 &&
@@ -43,14 +41,12 @@ bool authenticate_user(const char *username, const char *password, UserRole *rol
     return false;
 }
 
-// Generar token simple (en producción usar UUID o JWT)
 char* generate_token(const char *username) {
     static char token[MAX_TOKEN];
     snprintf(token, MAX_TOKEN, "TKN_%s_%ld", username, time(NULL));
     return token;
 }
 
-// Crear sesión
 Session* create_session(int client_fd, const char *username, UserRole role, const char *ip, int port) {
     pthread_mutex_lock(&sessions_lock);
     
@@ -74,7 +70,6 @@ Session* create_session(int client_fd, const char *username, UserRole role, cons
     return NULL;
 }
 
-// Obtener sesión por FD
 Session* get_session_by_fd(int client_fd) {
     pthread_mutex_lock(&sessions_lock);
     
@@ -89,7 +84,6 @@ Session* get_session_by_fd(int client_fd) {
     return NULL;
 }
 
-// Obtener sesión por token
 Session* get_session_by_token(const char *token) {
     pthread_mutex_lock(&sessions_lock);
     
@@ -105,7 +99,6 @@ Session* get_session_by_token(const char *token) {
     return NULL;
 }
 
-// Remover sesión
 void remove_session(int client_fd) {
     pthread_mutex_lock(&sessions_lock);
     
@@ -119,7 +112,6 @@ void remove_session(int client_fd) {
     pthread_mutex_unlock(&sessions_lock);
 }
 
-// Contar usuarios activos
 int get_active_users_count() {
     pthread_mutex_lock(&sessions_lock);
     
@@ -134,7 +126,6 @@ int get_active_users_count() {
     return count;
 }
 
-// Obtener lista de usuarios activos (formato CSV: user:role:ip,user:role:ip)
 void get_active_users_list(char *buffer, size_t size) {
     pthread_mutex_lock(&sessions_lock);
     
@@ -158,12 +149,11 @@ void get_active_users_list(char *buffer, size_t size) {
         }
     }
     
-    // Si no hay usuarios, poner un mensaje
     if (offset == 0) {
         snprintf(buffer, size, "user:NONE:none");
     }
     
-    printf("[AUTH] Lista de usuarios generada: '%s'\n", buffer);
+    printf("[AUTH] User list: '%s'\n", buffer);
     
     pthread_mutex_unlock(&sessions_lock);
 }
