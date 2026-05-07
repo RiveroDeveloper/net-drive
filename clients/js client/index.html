@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -430,20 +430,20 @@
             <h1>NetDrive</h1>
         <form onsubmit="return false;">
             <div class="form-group">
-                <label for="username">Usuario</label>
-                <input type="text" id="username" placeholder="Ingresa tu usuario" autocomplete="username">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username" autocomplete="username">
             </div>
             <div class="form-group">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" placeholder="Ingresa tu contraseña" autocomplete="current-password">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
             </div>
-            <button type="button" id="loginBtn" class="login-btn">Iniciar Sesión</button>
+            <button type="button" id="loginBtn" class="login-btn">Sign in</button>
             <div id="loginStatus" class="login-status hidden"></div>
         </form>
         <div class="credentials-info">
-            <strong>Usuarios de prueba:</strong><br>
-            • admin / admin123 (Administrador)<br>
-            • observer / observer123 (Observador)
+            <strong>Demo accounts:</strong><br>
+            • admin / admin123 (Administrator)<br>
+            • observer / observer123 (Observer)
         </div>
         </div>
 
@@ -452,9 +452,9 @@
         <div class="header">
             <h1>NetDrive - Telemetry System</h1>
             <div class="user-info">
-                <div class="username" id="dashboardUsername">Usuario</div>
-                <div class="role" id="dashboardRole">Rol</div>
-                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+                <div class="username" id="dashboardUsername">User</div>
+                <div class="role" id="dashboardRole">Role</div>
+                <button class="logout-btn" onclick="logout()">Sign out</button>
             </div>
                 </div>
 
@@ -462,27 +462,27 @@
         <div class="telemetry-section">
             <div class="telemetry-grid">
                 <div class="telemetry-card">
-                    <div class="label">Velocidad</div>
+                    <div class="label">Speed</div>
                     <div class="value">
                         <span id="speed">0</span>
                         <span class="unit">km/h</span>
                     </div>
                 </div>
                 <div class="telemetry-card">
-                    <div class="label">Dirección</div>
+                    <div class="label">Direction</div>
                     <div class="value">
                         <span id="direction">N</span>
                     </div>
                 </div>
                 <div class="telemetry-card">
-                    <div class="label">Batería</div>
+                    <div class="label">Battery</div>
                     <div class="value">
                         <span id="battery">100</span>
                         <span class="unit">%</span>
                     </div>
                 </div>
                 <div class="telemetry-card">
-                    <div class="label">Temperatura</div>
+                    <div class="label">Temperature</div>
                     <div class="value">
                         <span id="temperature">25</span>
                         <span class="unit">°C</span>
@@ -497,14 +497,14 @@
 
         <!-- Admin Controls -->
         <div id="adminControls" class="admin-section hidden">
-            <h2>Panel de Control - Administrador</h2>
+            <h2>Control panel — Administrator</h2>
             <div class="command-grid">
-                <button class="command-btn" onclick="sendCommand('SPEED UP')">Acelerar</button>
-                <button class="command-btn" onclick="sendCommand('SLOW DOWN')">Frenar</button>
-                <button class="command-btn" onclick="sendCommand('TURN LEFT')">Girar Izquierda</button>
-                <button class="command-btn" onclick="sendCommand('TURN RIGHT')">Girar Derecha</button>
+                <button class="command-btn" onclick="sendCommand('SPEED UP')">Speed up</button>
+                <button class="command-btn" onclick="sendCommand('SLOW DOWN')">Slow down</button>
+                <button class="command-btn" onclick="sendCommand('TURN LEFT')">Turn left</button>
+                <button class="command-btn" onclick="sendCommand('TURN RIGHT')">Turn right</button>
             </div>
-            <button class="users-btn" onclick="showUsersModal()">Ver Usuarios Conectados</button>
+            <button class="users-btn" onclick="showUsersModal()">View connected users</button>
             <div id="commandStatus" class="status-message hidden"></div>
         </div>
                 </div>
@@ -513,15 +513,15 @@
     <div id="usersModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Usuarios Conectados</h2>
+                <h2>Connected users</h2>
                 <button class="modal-close" onclick="closeUsersModal()">&times;</button>
                 </div>
             <table class="users-table">
                 <thead>
                     <tr>
-                        <th>Usuario</th>
-                        <th>Rol</th>
-                        <th>Dirección IP</th>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>IP address</th>
                     </tr>
                 </thead>
                 <tbody id="usersTableBody">
@@ -538,9 +538,9 @@
         let awaitingAuth = false;
         let awaitingUserList = false;
         
-        // ====== SISTEMA DE VERIFICACIÓN DE RESPUESTAS ======
-        let clientResponse = "";  // Variable global: "", "OK", "ERROR"
-        let responseInterval = null;  // Intervalo para enviar STATUS
+        // STATUS / health check
+        let clientResponse = "";
+        let responseInterval = null;
 
         // === PROTOCOL FUNCTIONS ===
         function createMessage(action, data) {
@@ -555,8 +555,8 @@
                 const endIndex = raw.indexOf('END');
                 
                 if (pttIndex === -1 || endIndex === -1) {
-                    console.warn('[PARSE] Mensaje sin formato PTT válido');
-                    clientResponse = "ERROR";  // Formato inválido
+                    console.warn('[PARSE] Invalid PTT frame');
+                    clientResponse = "ERROR";
                     return null;
                 }
 
@@ -565,50 +565,46 @@
                 
                 return { action, data };
             } catch (e) {
-                console.error('[PARSE] Error parseando:', e);
-                clientResponse = "ERROR";  // Error de parseo
+                console.error('[PARSE] Parse error:', e);
+                clientResponse = "ERROR";
                 return null;
             }
         }
 
-        // ====== HILO DE RESPUESTAS (Similar a Python) ======
+        // Response polling (same cadence as Python client)
         function sendStatusToServer() {
-            // Si no hay respuesta pendiente, no hacer nada
             if (!clientResponse || !socket || socket.readyState !== WebSocket.OPEN) {
                 return;
             }
 
-            console.log(`[STATUS] Enviando: ${clientResponse}`);
+            console.log(`[STATUS] Sending: ${clientResponse}`);
             const statusMessage = createMessage('STATUS', clientResponse);
             socket.send(statusMessage);
             
-            // Limpiar respuesta después de enviar
             clientResponse = "";
         }
 
         function startResponseThread() {
-            // Detener intervalo previo si existe
             if (responseInterval) {
                 clearInterval(responseInterval);
             }
             
-            // Verificar cada 2 segundos (igual que Python)
             responseInterval = setInterval(() => {
                 if (!clientResponse) {
-                    console.log('[CLIENTE] No hay respuestas pendientes');
+                    console.log('[CLIENT] No pending STATUS');
                 } else {
                     sendStatusToServer();
                 }
             }, 2000);
             
-            console.log('[RESPONSE THREAD] Iniciado - verificando cada 2s');
+            console.log('[RESPONSE THREAD] Started — poll every 2s');
         }
 
         function stopResponseThread() {
             if (responseInterval) {
                 clearInterval(responseInterval);
                 responseInterval = null;
-                console.log('[RESPONSE THREAD] Detenido');
+                console.log('[RESPONSE THREAD] Stopped');
             }
         }
 
@@ -631,17 +627,17 @@
             const loginBtn = document.getElementById('loginBtn');
 
             if (!username || !password) {
-                showLoginStatus('Ingresa usuario y contraseña', 'error');
+                showLoginStatus('Enter username and password', 'error');
                 return;
             }
 
             loginBtn.disabled = true;
-            showLoginStatus('Conectando...', 'connecting');
+            showLoginStatus('Connecting...', 'connecting');
 
             socket = new WebSocket('ws://127.0.0.1:8080');
 
     socket.onopen = () => {
-                showLoginStatus('Autenticando...', 'connecting');
+                showLoginStatus('Signing in...', 'connecting');
                 
                 const loginData = `${username};${password}`;
                 const message = createMessage('LOGIN', loginData);
@@ -658,7 +654,7 @@
                     return;
                 }
 
-                console.log('[MESSAGE] Mensaje recibido:', parsed.action, '|', parsed.data.substring(0, 50));
+                console.log('[MESSAGE] Received:', parsed.action, '|', parsed.data.substring(0, 50));
 
                 // Handle authentication response
                 if (awaitingAuth && parsed.action === 'OK') {
@@ -669,7 +665,7 @@
                     currentRole = roleMatch ? roleMatch[1] : 'OBSERVER';
                     
                     showDashboard();
-                    startResponseThread();  // INICIAR HILO DE RESPUESTAS
+                    startResponseThread();
                     return;
                 }
 
@@ -677,7 +673,7 @@
                 if (awaitingAuth && parsed.action === 'ERROR') {
                     awaitingAuth = false;
                     document.getElementById('loginBtn').disabled = false;
-                    showLoginStatus('Credenciales incorrectas', 'error');
+                    showLoginStatus('Invalid credentials', 'error');
                     socket.close();
                     return;
                 }
@@ -686,50 +682,50 @@
                 if (parsed.action === 'DATA') {
                     try {
                         updateTelemetry(parsed.data);
-                        clientResponse = "OK";  // Telemetría procesada correctamente
+                        clientResponse = "OK";
                     } catch (error) {
-                        console.error('[TELEMETRY] Error actualizando:', error);
-                        clientResponse = "ERROR";  // Error procesando telemetría
+                        console.error('[TELEMETRY] Update error:', error);
+                        clientResponse = "ERROR";
                     }
                     return;
                 }
 
                 // Handle command responses
                 if (parsed.action === 'OK' && parsed.data.includes('COMMAND_OK')) {
-                    showCommandStatus('Comando ejecutado correctamente', 'success');
-                    clientResponse = "OK";  // Comando procesado
+                    showCommandStatus('Command completed', 'success');
+                    clientResponse = "OK";
                     return;
                 }
 
                 if (parsed.action === 'DENIED') {
-                    showCommandStatus('Permiso denegado', 'error');
-                    clientResponse = "OK";  // Mensaje recibido (aunque denegado)
+                    showCommandStatus('Permission denied', 'error');
+                    clientResponse = "OK";
                     return;
                 }
 
                 // Handle user list
                 if (awaitingUserList && parsed.action === 'OK') {
-                    console.log('[LIST] Lista de usuarios recibida:', parsed.data);
+                    console.log('[LIST] User list:', parsed.data);
                     awaitingUserList = false;
                     displayUsers(parsed.data);
-                    clientResponse = "OK";  // Lista procesada
+                    clientResponse = "OK";
                     return;
                 }
             };
 
             socket.onerror = (error) => {
                 console.error('[WEBSOCKET] Error:', error);
-                showLoginStatus('Error de conexión', 'error');
+                showLoginStatus('Connection error', 'error');
                 document.getElementById('loginBtn').disabled = false;
                 awaitingAuth = false;
-                clientResponse = "ERROR";  // Error de conexión
+                clientResponse = "ERROR";
             };
 
             socket.onclose = () => {
-                stopResponseThread();  // Detener hilo al cerrar conexión
+                stopResponseThread();
                 
                 if (awaitingAuth) {
-                    showLoginStatus('Conexión cerrada', 'error');
+                    showLoginStatus('Connection closed', 'error');
                     document.getElementById('loginBtn').disabled = false;
                     awaitingAuth = false;
                 }
@@ -744,7 +740,7 @@
             document.getElementById('dashboardUsername').textContent = currentUser;
             document.getElementById('dashboardRole').textContent = currentRole;
             
-            // Mostrar panel de admin SOLO si es ADMIN
+            // Show admin controls only for ADMIN
             const adminControls = document.getElementById('adminControls');
             if (currentRole === 'ADMIN') {
                 adminControls.classList.remove('hidden');
@@ -776,14 +772,14 @@
         }
 
         function logout() {
-            stopResponseThread();  // Detener hilo al logout
+            stopResponseThread();
             
             if (socket) {
                 socket.close();
             }
             currentUser = null;
             currentRole = null;
-            clientResponse = "";  // Limpiar respuesta pendiente
+            clientResponse = "";
             document.getElementById('dashboard').classList.add('hidden');
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('username').value = '';
@@ -795,13 +791,13 @@
         // === ADMIN FUNCTIONS ===
         function sendCommand(command) {
             if (!socket || socket.readyState !== WebSocket.OPEN) {
-                showCommandStatus('No conectado al servidor', 'error');
+                showCommandStatus('Not connected to server', 'error');
                 return;
             }
 
             const message = createMessage('COMMAND', command);
             socket.send(message);
-            showCommandStatus('Enviando comando...', 'success');
+            showCommandStatus('Sending command...', 'success');
         }
 
         function showCommandStatus(message, type) {
@@ -817,11 +813,11 @@
 
         function showUsersModal() {
             if (!socket || socket.readyState !== WebSocket.OPEN) {
-                showCommandStatus('No conectado al servidor', 'error');
+                showCommandStatus('Not connected to server', 'error');
                 return;
             }
 
-            console.log('[LIST] Solicitando lista de usuarios...');
+            console.log('[LIST] Requesting user list...');
             const message = createMessage('LIST', '');
             awaitingUserList = true;
             socket.send(message);
@@ -833,18 +829,18 @@
         }
 
         function displayUsers(data) {
-            console.log('[LIST] Parseando usuarios:', data);
+            console.log('[LIST] Parsing users:', data);
             const tbody = document.getElementById('usersTableBody');
             tbody.innerHTML = '';
 
             // Parse user data: "user1:ADMIN:192.168.1.1,user2:OBSERVER:192.168.1.2"
             const users = data.split(',').filter(u => u.trim());
             
-            console.log('[LIST] Usuarios encontrados:', users.length);
+            console.log('[LIST] Users:', users.length);
             
             users.forEach(userStr => {
                 const parts = userStr.trim().split(':');
-                console.log('  - Partes:', parts);
+                console.log('  - parts:', parts);
                 
                 if (parts.length >= 3 && parts[1] !== 'NONE') {
                     const tr = document.createElement('tr');
@@ -858,7 +854,7 @@
             });
 
             if (tbody.children.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: #666;">No hay usuarios conectados</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: #666;">No connected users</td></tr>';
             }
         }
 </script>

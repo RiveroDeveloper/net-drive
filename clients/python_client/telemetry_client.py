@@ -3,17 +3,17 @@ from PIL import Image
 import car as car_module
 
 
-# CONFIGURACIÓN GLOBAL
+# Global appearance
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-# CREAR VENTANA PRINCIPAL
+# Main window
 root = ctk.CTk()
 root.title("Telemetry Client")
 root.geometry("800x600")
 root.resizable(False, False)
 
-# FRAME PRINCIPAL
+# Main frame
 main_frame = ctk.CTkFrame(root)
 main_frame.pack(fill="both", expand=True)
 
@@ -29,26 +29,26 @@ title_label = ctk.CTkLabel(
 )
 title_label.pack(pady=20)
 
-# CONTENIDO PRINCIPAL
+# Content area
 content_frame = ctk.CTkFrame(main_frame, fg_color="gray10", corner_radius=0)
 content_frame.pack(fill="both", expand=True)
 
-# CONFIGURAR GRID PRINCIPAL (3 columnas)
-content_frame.grid_columnconfigure(0, weight=1)  # Grid izquierdo
-content_frame.grid_columnconfigure(1, weight=1)  # Imagen central
-content_frame.grid_columnconfigure(2, weight=1)  # Grid derecho
-content_frame.grid_rowconfigure(0, weight=1)     # Fila única
+# 3-column grid
+content_frame.grid_columnconfigure(0, weight=1)
+content_frame.grid_columnconfigure(1, weight=1)
+content_frame.grid_columnconfigure(2, weight=1)
+content_frame.grid_rowconfigure(0, weight=1)
 
-# GRID IZQUIERDO (Velocidad y Batería)
+# Left: speed + battery
 left_grid = ctk.CTkFrame(content_frame, fg_color="transparent")
 left_grid.grid(row=0, column=0, padx=(5, 15), pady=20, sticky="nsew")
 
-# Configurar grid izquierdo (2 filas)
+# Left grid — 2 rows
 left_grid.grid_rowconfigure(0, weight=1)
 left_grid.grid_rowconfigure(1, weight=1)
 left_grid.grid_columnconfigure(0, weight=1)
 
-# VELOCIDAD (arriba izquierda)
+# Speed (top-left)
 speed_frame = ctk.CTkFrame(
     left_grid,
     corner_radius=10,
@@ -58,7 +58,7 @@ speed_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
 speed_title = ctk.CTkLabel(
     speed_frame,
-    text="VELOCIDAD",
+    text="SPEED",
     font=ctk.CTkFont(size=16, weight="bold"),
     text_color="white"
 )
@@ -80,7 +80,7 @@ speed_unit = ctk.CTkLabel(
 )
 speed_unit.pack(pady=(0, 15))
 
-# BATERÍA (abajo izquierda)
+# Battery (bottom-left)
 battery_frame = ctk.CTkFrame(
     left_grid,
     corner_radius=10,
@@ -90,7 +90,7 @@ battery_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
 battery_title = ctk.CTkLabel(
     battery_frame,
-    text="BATERÍA",
+    text="BATTERY",
     font=ctk.CTkFont(size=16, weight="bold"),
     text_color="white"
 )
@@ -112,7 +112,7 @@ battery_unit = ctk.CTkLabel(
 )
 battery_unit.pack(pady=(0, 15))
 
-# FRAME CENTRAL PARA IMAGEN DEL CARRO
+# Center: vehicle image
 car_frame = ctk.CTkFrame(
     content_frame,
     corner_radius=15,
@@ -120,12 +120,12 @@ car_frame = ctk.CTkFrame(
 )
 car_frame.grid(row=0, column=1, padx=5, pady=20, sticky="nsew")
 
-# Cargar imagen del carro
+# Load vehicle image
 def load_car_image():
     try:
         car_image = Image.open("images/auto.png")
         
-        # Usar CTkImage en lugar de ImageTk.PhotoImage
+        # CTkImage
         car_photo = ctk.CTkImage(
             light_image=car_image,
             dark_image=car_image,
@@ -138,12 +138,11 @@ def load_car_image():
             text=""
         )
         car_image_label.pack(expand=True, padx=20, pady=20)
-        car_image_label.image = car_photo  # Mantener referencia
+        car_image_label.image = car_photo
     except Exception as e:
-        # Fallback si no se encuentra la imagen
         car_image_label = ctk.CTkLabel(
             car_frame,
-            text="IMAGEN DEL CARRO",
+            text="Vehicle image",
             font=ctk.CTkFont(size=20),
             text_color="white"
         )
@@ -155,19 +154,19 @@ def update_telemetry(speed, temp, direction, battery):
     direction_value.configure(text=direction)
     battery_value.configure(text=str(battery))
 
-# Cargar la imagen
+# Image loaded above
 load_car_image()
 
-# GRID DERECHO (Temperatura y Dirección)
+# Right: temperature + heading
 right_grid = ctk.CTkFrame(content_frame, fg_color="transparent")
 right_grid.grid(row=0, column=2, padx=(0, 5), pady=20, sticky="nsew")
 
-# Configurar grid derecho (2 filas)
+# Right grid — 2 rows
 right_grid.grid_rowconfigure(0, weight=1)
 right_grid.grid_rowconfigure(1, weight=1)
 right_grid.grid_columnconfigure(0, weight=1)
 
-# TEMPERATURA (arriba derecha)
+# Temperature (top-right)
 temp_frame = ctk.CTkFrame(
     right_grid,
     corner_radius=10,
@@ -177,7 +176,7 @@ temp_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
 temp_title = ctk.CTkLabel(
     temp_frame,
-    text="TEMPERATURA",
+    text="TEMPERATURE",
     font=ctk.CTkFont(size=16, weight="bold"),
     text_color="white"
 )
@@ -199,7 +198,7 @@ temp_unit = ctk.CTkLabel(
 )
 temp_unit.pack(pady=(0, 15))
 
-# DIRECCIÓN (abajo derecha)
+# Heading (bottom-right)
 direction_frame = ctk.CTkFrame(
     right_grid,
     corner_radius=10,
@@ -209,7 +208,7 @@ direction_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
 direction_title = ctk.CTkLabel(
     direction_frame,
-    text="DIRECCIÓN",
+    text="HEADING",
     font=ctk.CTkFont(size=16, weight="bold"),
     text_color="white"
 )

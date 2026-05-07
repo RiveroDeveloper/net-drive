@@ -1,7 +1,7 @@
 {
   "name": "telemetry-client-js",
   "version": "1.0.0",
-  "description": "Cliente de telemetría en JavaScript con bridge WebSocket-TCP",
+  "description": "JavaScript telemetry client with WebSocket–TCP bridge",
   "main": "server.js",
   "scripts": {
     "start": "node server.js & npx http-server -p 3000 -o",
