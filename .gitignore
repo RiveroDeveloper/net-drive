@@ -69,6 +69,7 @@ yarn-error.log*
 dist/
 build/
 .cache/
+clients/js client/env.js
 
 # ===== IDEs y Editores =====
 # Visual Studio Code

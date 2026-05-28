@@ -1,862 +1,910 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NetDrive - Telemetry System</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0a;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #0a0a0a;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
 
-        .hidden {
-            display: none !important;
-        }
+      .hidden {
+        display: none !important;
+      }
 
-        /* === LOGIN SCREEN === */
-        .login-container {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 40px;
-            width: 400px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
+      /* === LOGIN SCREEN === */
+      .login-container {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 40px;
+        width: 400px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      }
 
-        .login-container h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #00ff88;
-            font-size: 28px;
-        }
+      .login-container h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #00ff88;
+        font-size: 28px;
+      }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+      .form-group {
+        margin-bottom: 20px;
+      }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #aaa;
-            font-size: 14px;
-        }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #aaa;
+        font-size: 14px;
+      }
 
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 5px;
-            color: #fff;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 5px;
+        color: #fff;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #00ff88;
-        }
+      .form-group input:focus {
+        outline: none;
+        border-color: #00ff88;
+      }
 
-        .login-btn {
-            width: 100%;
-            padding: 14px;
-            background: #00ff88;
-            color: #000;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+      .login-btn {
+        width: 100%;
+        padding: 14px;
+        background: #00ff88;
+        color: #000;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
 
-        .login-btn:hover:not(:disabled) {
-            background: #00cc6f;
-            transform: translateY(-2px);
-        }
+      .login-btn:hover:not(:disabled) {
+        background: #00cc6f;
+        transform: translateY(-2px);
+      }
 
-        .login-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+      .login-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
-        .login-status {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            font-size: 14px;
-        }
+      .login-status {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 14px;
+      }
 
-        .login-status.error {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid #ff0000;
-            color: #ff5555;
-        }
+      .login-status.error {
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid #ff0000;
+        color: #ff5555;
+      }
 
-        .login-status.connecting {
-            background: rgba(255, 200, 0, 0.1);
-            border: 1px solid #ffc800;
-            color: #ffc800;
-        }
+      .login-status.connecting {
+        background: rgba(255, 200, 0, 0.1);
+        border: 1px solid #ffc800;
+        color: #ffc800;
+      }
 
-        .credentials-info {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0, 255, 136, 0.05);
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            border-radius: 5px;
-            font-size: 12px;
-            color: #aaa;
-        }
+      .credentials-info {
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(0, 255, 136, 0.05);
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        border-radius: 5px;
+        font-size: 12px;
+        color: #aaa;
+      }
 
-        .credentials-info strong {
-            color: #00ff88;
-        }
+      .credentials-info strong {
+        color: #00ff88;
+      }
 
-        /* === DASHBOARD === */
-        .dashboard {
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px;
-        }
+      /* === DASHBOARD === */
+      .dashboard {
+        width: 100%;
+        max-width: 1200px;
+        padding: 20px;
+      }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #333;
-        }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #333;
+      }
 
-        .header h1 {
-            font-size: 32px;
-            color: #00ff88;
-        }
+      .header h1 {
+        font-size: 32px;
+        color: #00ff88;
+      }
 
-        .user-info {
-            text-align: right;
-        }
+      .user-info {
+        text-align: right;
+      }
 
-        .user-info .username {
-            font-size: 18px;
-            font-weight: 600;
-            color: #fff;
-        }
+      .user-info .username {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+      }
 
-        .user-info .role {
-            font-size: 14px;
-            color: #00ff88;
-            margin-top: 5px;
-        }
+      .user-info .role {
+        font-size: 14px;
+        color: #00ff88;
+        margin-top: 5px;
+      }
 
-        .logout-btn {
-            margin-top: 10px;
-            padding: 8px 20px;
-            background: transparent;
-            border: 1px solid #666;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
+      .logout-btn {
+        margin-top: 10px;
+        padding: 8px 20px;
+        background: transparent;
+        border: 1px solid #666;
+        color: #fff;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s;
+      }
 
-        .logout-btn:hover {
-            border-color: #00ff88;
-            color: #00ff88;
-        }
+      .logout-btn:hover {
+        border-color: #00ff88;
+        color: #00ff88;
+      }
 
-        /* === TELEMETRY === */
-        .telemetry-section {
-            margin-bottom: 30px;
-        }
+      /* === TELEMETRY === */
+      .telemetry-section {
+        margin-bottom: 30px;
+      }
 
+      .telemetry-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      @media (max-width: 1024px) {
         .telemetry-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
+          grid-template-columns: repeat(2, 1fr);
         }
+      }
 
-        @media (max-width: 1024px) {
-            .telemetry-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+      @media (max-width: 600px) {
+        .telemetry-grid {
+          grid-template-columns: 1fr;
         }
+      }
 
-        @media (max-width: 600px) {
-            .telemetry-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+      .telemetry-card {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+        transition: all 0.3s;
+      }
 
-        .telemetry-card {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s;
-        }
+      .telemetry-card:hover {
+        border-color: #00ff88;
+        transform: translateY(-5px);
+      }
 
-        .telemetry-card:hover {
-            border-color: #00ff88;
-            transform: translateY(-5px);
-        }
+      .telemetry-card .label {
+        font-size: 14px;
+        color: #888;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-        .telemetry-card .label {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+      .telemetry-card .value {
+        font-size: 42px;
+        font-weight: 700;
+        color: #00ff88;
+        line-height: 1;
+      }
 
-        .telemetry-card .value {
-            font-size: 42px;
-            font-weight: 700;
-            color: #00ff88;
-            line-height: 1;
-        }
+      .telemetry-card .unit {
+        font-size: 18px;
+        color: #666;
+        margin-left: 5px;
+      }
 
-        .telemetry-card .unit {
-            font-size: 18px;
-            color: #666;
-            margin-left: 5px;
-        }
+      .car-display {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
 
-        .car-display {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
+      .car-display img {
+        max-width: 300px;
+        width: 100%;
+        filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.3));
+      }
 
-        .car-display img {
-            max-width: 300px;
-            width: 100%;
-            filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.3));
-        }
+      /* === ADMIN SECTION === */
+      .admin-section {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 30px;
+      }
 
-        /* === ADMIN SECTION === */
-        .admin-section {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 30px;
-        }
+      .admin-section h2 {
+        color: #00ff88;
+        margin-bottom: 25px;
+        font-size: 24px;
+        text-align: center;
+      }
 
-        .admin-section h2 {
-            color: #00ff88;
-            margin-bottom: 25px;
-            font-size: 24px;
-            text-align: center;
-        }
+      .command-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 25px;
+      }
 
+      @media (max-width: 600px) {
         .command-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
+          grid-template-columns: 1fr;
         }
+      }
 
-        @media (max-width: 600px) {
-            .command-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+      .command-btn {
+        padding: 15px 25px;
+        background: transparent;
+        border: 2px solid #00ff88;
+        color: #00ff88;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-        .command-btn {
-            padding: 15px 25px;
-            background: transparent;
-            border: 2px solid #00ff88;
-            color: #00ff88;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+      .command-btn:hover {
+        background: #00ff88;
+        color: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+      }
 
-        .command-btn:hover {
-            background: #00ff88;
-            color: #000;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
-        }
+      .users-btn {
+        width: 100%;
+        padding: 15px;
+        background: transparent;
+        border: 2px solid #00aaff;
+        color: #00aaff;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-        .users-btn {
-            width: 100%;
-            padding: 15px;
-            background: transparent;
-            border: 2px solid #00aaff;
-            color: #00aaff;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+      .users-btn:hover {
+        background: #00aaff;
+        color: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 170, 255, 0.3);
+      }
 
-        .users-btn:hover {
-            background: #00aaff;
-            color: #000;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 170, 255, 0.3);
-        }
+      .status-message {
+        margin-top: 20px;
+        padding: 12px;
+        border-radius: 5px;
+        text-align: center;
+        font-weight: 600;
+      }
 
-        .status-message {
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: 600;
-        }
+      .status-message.success {
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid #00ff88;
+        color: #00ff88;
+      }
 
-        .status-message.success {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid #00ff88;
-            color: #00ff88;
-        }
+      .status-message.error {
+        background: rgba(255, 0, 0, 0.1);
+        border: 1px solid #ff0000;
+        color: #ff5555;
+      }
 
-        .status-message.error {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid #ff0000;
-            color: #ff5555;
-        }
+      /* === MODAL === */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
 
-        /* === MODAL === */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+      .modal-content {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 30px;
+        max-width: 700px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
 
-        .modal-content {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 30px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #333;
+      }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #333;
-        }
+      .modal-header h2 {
+        color: #00ff88;
+        font-size: 24px;
+      }
 
-        .modal-header h2 {
-            color: #00ff88;
-            font-size: 24px;
-        }
+      .modal-close {
+        background: transparent;
+        border: none;
+        color: #666;
+        font-size: 32px;
+        cursor: pointer;
+        transition: color 0.3s;
+      }
 
-        .modal-close {
-            background: transparent;
-            border: none;
-            color: #666;
-            font-size: 32px;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
+      .modal-close:hover {
+        color: #ff5555;
+      }
 
-        .modal-close:hover {
-            color: #ff5555;
-        }
+      .users-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
 
-        .users-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+      .users-table th {
+        background: #0a0a0a;
+        padding: 15px;
+        text-align: left;
+        color: #00ff88;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 12px;
+      }
 
-        .users-table th {
-            background: #0a0a0a;
-            padding: 15px;
-            text-align: left;
-            color: #00ff88;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 12px;
-        }
+      .users-table td {
+        padding: 15px;
+        border-top: 1px solid #333;
+        color: #aaa;
+      }
 
-        .users-table td {
-            padding: 15px;
-            border-top: 1px solid #333;
-            color: #aaa;
-        }
-
-        .users-table tbody tr:hover {
-            background: rgba(0, 255, 136, 0.05);
-        }
+      .users-table tbody tr:hover {
+        background: rgba(0, 255, 136, 0.05);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="login-container">
-            <h1>NetDrive</h1>
-        <form onsubmit="return false;">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Enter username" autocomplete="username">
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
-            </div>
-            <button type="button" id="loginBtn" class="login-btn">Sign in</button>
-            <div id="loginStatus" class="login-status hidden"></div>
-        </form>
-        <div class="credentials-info">
-            <strong>Demo accounts:</strong><br>
-            • admin / admin123 (Administrator)<br>
-            • observer / observer123 (Observer)
+      <h1>NetDrive</h1>
+      <form onsubmit="return false;">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter username"
+            autocomplete="username"
+          />
         </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter password"
+            autocomplete="current-password"
+          />
         </div>
+        <button type="button" id="loginBtn" class="login-btn">Sign in</button>
+        <div id="loginStatus" class="login-status hidden"></div>
+      </form>
+      <div class="credentials-info">
+        <strong>Demo accounts:</strong><br />
+        • admin / admin123 (Administrator)<br />
+        • observer / observer123 (Observer)
+      </div>
+    </div>
 
     <!-- DASHBOARD -->
     <div id="dashboard" class="dashboard hidden">
-        <div class="header">
-            <h1>NetDrive - Telemetry System</h1>
-            <div class="user-info">
-                <div class="username" id="dashboardUsername">User</div>
-                <div class="role" id="dashboardRole">Role</div>
-                <button class="logout-btn" onclick="logout()">Sign out</button>
-            </div>
-                </div>
-
-        <!-- Telemetry -->
-        <div class="telemetry-section">
-            <div class="telemetry-grid">
-                <div class="telemetry-card">
-                    <div class="label">Speed</div>
-                    <div class="value">
-                        <span id="speed">0</span>
-                        <span class="unit">km/h</span>
-                    </div>
-                </div>
-                <div class="telemetry-card">
-                    <div class="label">Direction</div>
-                    <div class="value">
-                        <span id="direction">N</span>
-                    </div>
-                </div>
-                <div class="telemetry-card">
-                    <div class="label">Battery</div>
-                    <div class="value">
-                        <span id="battery">100</span>
-                        <span class="unit">%</span>
-                    </div>
-                </div>
-                <div class="telemetry-card">
-                    <div class="label">Temperature</div>
-                    <div class="value">
-                        <span id="temperature">25</span>
-                        <span class="unit">°C</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="car-display">
-                <img src="images/auto.png" alt="Vehicle" id="carImage">
-            </div>
-            </div>
-
-        <!-- Admin Controls -->
-        <div id="adminControls" class="admin-section hidden">
-            <h2>Control panel — Administrator</h2>
-            <div class="command-grid">
-                <button class="command-btn" onclick="sendCommand('SPEED UP')">Speed up</button>
-                <button class="command-btn" onclick="sendCommand('SLOW DOWN')">Slow down</button>
-                <button class="command-btn" onclick="sendCommand('TURN LEFT')">Turn left</button>
-                <button class="command-btn" onclick="sendCommand('TURN RIGHT')">Turn right</button>
-            </div>
-            <button class="users-btn" onclick="showUsersModal()">View connected users</button>
-            <div id="commandStatus" class="status-message hidden"></div>
+      <div class="header">
+        <h1>NetDrive - Telemetry System</h1>
+        <div class="user-info">
+          <div class="username" id="dashboardUsername">User</div>
+          <div class="role" id="dashboardRole">Role</div>
+          <button class="logout-btn" onclick="logout()">Sign out</button>
         </div>
-                </div>
+      </div>
+
+      <!-- Telemetry -->
+      <div class="telemetry-section">
+        <div class="telemetry-grid">
+          <div class="telemetry-card">
+            <div class="label">Speed</div>
+            <div class="value">
+              <span id="speed">0</span>
+              <span class="unit">km/h</span>
+            </div>
+          </div>
+          <div class="telemetry-card">
+            <div class="label">Direction</div>
+            <div class="value">
+              <span id="direction">N</span>
+            </div>
+          </div>
+          <div class="telemetry-card">
+            <div class="label">Battery</div>
+            <div class="value">
+              <span id="battery">100</span>
+              <span class="unit">%</span>
+            </div>
+          </div>
+          <div class="telemetry-card">
+            <div class="label">Temperature</div>
+            <div class="value">
+              <span id="temperature">25</span>
+              <span class="unit">°C</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="car-display">
+          <img src="images/auto.png" alt="Vehicle" id="carImage" />
+        </div>
+      </div>
+
+      <!-- Admin Controls -->
+      <div id="adminControls" class="admin-section hidden">
+        <h2>Control panel — Administrator</h2>
+        <div class="command-grid">
+          <button class="command-btn" onclick="sendCommand('SPEED UP')">
+            Speed up
+          </button>
+          <button class="command-btn" onclick="sendCommand('SLOW DOWN')">
+            Slow down
+          </button>
+          <button class="command-btn" onclick="sendCommand('TURN LEFT')">
+            Turn left
+          </button>
+          <button class="command-btn" onclick="sendCommand('TURN RIGHT')">
+            Turn right
+          </button>
+        </div>
+        <button class="users-btn" onclick="showUsersModal()">
+          View connected users
+        </button>
+        <div id="commandStatus" class="status-message hidden"></div>
+      </div>
+    </div>
 
     <!-- USERS MODAL -->
     <div id="usersModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Connected users</h2>
-                <button class="modal-close" onclick="closeUsersModal()">&times;</button>
-                </div>
-            <table class="users-table">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Role</th>
-                        <th>IP address</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    <!-- Populated by JS -->
-                </tbody>
-            </table>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Connected users</h2>
+          <button class="modal-close" onclick="closeUsersModal()">
+            &times;
+          </button>
         </div>
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>IP address</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
-<script>
-        let socket = null;
-        let currentUser = null;
-        let currentRole = null;
-        let awaitingAuth = false;
-        let awaitingUserList = false;
-        
-        // STATUS / health check
-        let clientResponse = "";
-        let responseInterval = null;
+    <script src="./env.js"></script>
+    <script>
+      let socket = null;
+      let currentUser = null;
+      let currentRole = null;
+      let awaitingAuth = false;
+      let awaitingUserList = false;
 
-        // === PROTOCOL FUNCTIONS ===
-        function createMessage(action, data) {
-            const actionPadded = action.padEnd(12, ' ');
-            const dataPadded = data.padEnd(150, ' ');
-            return `PTT${actionPadded}${dataPadded}END`;
+      // STATUS / health check
+      let clientResponse = "";
+      let responseInterval = null;
+
+      // === PROTOCOL FUNCTIONS ===
+      function getWebSocketUrl() {
+        const runtimeConfig = window.__NETRIDE_CONFIG__ || {};
+        if (runtimeConfig.WS_URL) {
+          return runtimeConfig.WS_URL;
         }
 
-        function parseResponse(raw) {
+        // Fallback for local/same-host deployments.
+        const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        return `${wsProtocol}//${window.location.host}/ws/`;
+      }
+
+      function createMessage(action, data) {
+        const actionPadded = action.padEnd(12, " ");
+        const dataPadded = data.padEnd(150, " ");
+        return `PTT${actionPadded}${dataPadded}END`;
+      }
+
+      function parseResponse(raw) {
+        try {
+          const pttIndex = raw.indexOf("PTT");
+          const endIndex = raw.indexOf("END");
+
+          if (pttIndex === -1 || endIndex === -1) {
+            console.warn("[PARSE] Invalid PTT frame");
+            clientResponse = "ERROR";
+            return null;
+          }
+
+          const action = raw.substring(pttIndex + 3, pttIndex + 15).trim();
+          const data = raw.substring(pttIndex + 15, endIndex).trim();
+
+          return { action, data };
+        } catch (e) {
+          console.error("[PARSE] Parse error:", e);
+          clientResponse = "ERROR";
+          return null;
+        }
+      }
+
+      // Response polling (same cadence as Python client)
+      function sendStatusToServer() {
+        if (
+          !clientResponse ||
+          !socket ||
+          socket.readyState !== WebSocket.OPEN
+        ) {
+          return;
+        }
+
+        console.log(`[STATUS] Sending: ${clientResponse}`);
+        const statusMessage = createMessage("STATUS", clientResponse);
+        socket.send(statusMessage);
+
+        clientResponse = "";
+      }
+
+      function startResponseThread() {
+        if (responseInterval) {
+          clearInterval(responseInterval);
+        }
+
+        responseInterval = setInterval(() => {
+          if (!clientResponse) {
+            console.log("[CLIENT] No pending STATUS");
+          } else {
+            sendStatusToServer();
+          }
+        }, 2000);
+
+        console.log("[RESPONSE THREAD] Started — poll every 2s");
+      }
+
+      function stopResponseThread() {
+        if (responseInterval) {
+          clearInterval(responseInterval);
+          responseInterval = null;
+          console.log("[RESPONSE THREAD] Stopped");
+        }
+      }
+
+      // === LOGIN ===
+      document.getElementById("loginBtn").addEventListener("click", doLogin);
+      document.getElementById("password").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") doLogin();
+      });
+
+      function showLoginStatus(message, type) {
+        const statusDiv = document.getElementById("loginStatus");
+        statusDiv.textContent = message;
+        statusDiv.className = `login-status ${type}`;
+        statusDiv.classList.remove("hidden");
+      }
+
+      function doLogin() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const loginBtn = document.getElementById("loginBtn");
+
+        if (!username || !password) {
+          showLoginStatus("Enter username and password", "error");
+          return;
+        }
+
+        loginBtn.disabled = true;
+        showLoginStatus("Connecting...", "connecting");
+
+        socket = new WebSocket(getWebSocketUrl());
+
+        socket.onopen = () => {
+          showLoginStatus("Signing in...", "connecting");
+
+          const loginData = `${username};${password}`;
+          const message = createMessage("LOGIN", loginData);
+
+          awaitingAuth = true;
+          currentUser = username;
+          socket.send(message);
+        };
+
+        socket.onmessage = (event) => {
+          const parsed = parseResponse(event.data);
+
+          if (!parsed) {
+            return;
+          }
+
+          console.log(
+            "[MESSAGE] Received:",
+            parsed.action,
+            "|",
+            parsed.data.substring(0, 50),
+          );
+
+          // Handle authentication response
+          if (awaitingAuth && parsed.action === "OK") {
+            awaitingAuth = false;
+
+            // Extract role
+            const roleMatch = parsed.data.match(/role=(\w+)/);
+            currentRole = roleMatch ? roleMatch[1] : "OBSERVER";
+
+            showDashboard();
+            startResponseThread();
+            return;
+          }
+
+          // Handle authentication error
+          if (awaitingAuth && parsed.action === "ERROR") {
+            awaitingAuth = false;
+            document.getElementById("loginBtn").disabled = false;
+            showLoginStatus("Invalid credentials", "error");
+            socket.close();
+            return;
+          }
+
+          // Handle telemetry data
+          if (parsed.action === "DATA") {
             try {
-                const pttIndex = raw.indexOf('PTT');
-                const endIndex = raw.indexOf('END');
-                
-                if (pttIndex === -1 || endIndex === -1) {
-                    console.warn('[PARSE] Invalid PTT frame');
-                    clientResponse = "ERROR";
-                    return null;
-                }
-
-                const action = raw.substring(pttIndex + 3, pttIndex + 15).trim();
-                const data = raw.substring(pttIndex + 15, endIndex).trim();
-                
-                return { action, data };
-            } catch (e) {
-                console.error('[PARSE] Parse error:', e);
-                clientResponse = "ERROR";
-                return null;
+              updateTelemetry(parsed.data);
+              clientResponse = "OK";
+            } catch (error) {
+              console.error("[TELEMETRY] Update error:", error);
+              clientResponse = "ERROR";
             }
+            return;
+          }
+
+          // Handle command responses
+          if (parsed.action === "OK" && parsed.data.includes("COMMAND_OK")) {
+            showCommandStatus("Command completed", "success");
+            clientResponse = "OK";
+            return;
+          }
+
+          if (parsed.action === "DENIED") {
+            showCommandStatus("Permission denied", "error");
+            clientResponse = "OK";
+            return;
+          }
+
+          // Handle user list
+          if (awaitingUserList && parsed.action === "OK") {
+            console.log("[LIST] User list:", parsed.data);
+            awaitingUserList = false;
+            displayUsers(parsed.data);
+            clientResponse = "OK";
+            return;
+          }
+        };
+
+        socket.onerror = (error) => {
+          console.error("[WEBSOCKET] Error:", error);
+          showLoginStatus("Connection error", "error");
+          document.getElementById("loginBtn").disabled = false;
+          awaitingAuth = false;
+          clientResponse = "ERROR";
+        };
+
+        socket.onclose = () => {
+          stopResponseThread();
+
+          if (awaitingAuth) {
+            showLoginStatus("Connection closed", "error");
+            document.getElementById("loginBtn").disabled = false;
+            awaitingAuth = false;
+          }
+        };
+      }
+
+      // === DASHBOARD ===
+      function showDashboard() {
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+
+        document.getElementById("dashboardUsername").textContent = currentUser;
+        document.getElementById("dashboardRole").textContent = currentRole;
+
+        // Show admin controls only for ADMIN
+        const adminControls = document.getElementById("adminControls");
+        if (currentRole === "ADMIN") {
+          adminControls.classList.remove("hidden");
+        } else {
+          adminControls.classList.add("hidden");
+        }
+      }
+
+      function updateTelemetry(data) {
+        const speedMatch = data.match(/speed=([\d.]+)/);
+        const dirMatch = data.match(/dir=([\d.]+)/);
+        const batteryMatch = data.match(/battery=([\d.]+)/);
+        const tempMatch = data.match(/temp=([\d.]+)/);
+
+        if (speedMatch)
+          document.getElementById("speed").textContent = speedMatch[1];
+        if (dirMatch) {
+          const degrees = parseFloat(dirMatch[1]);
+          const cardinal = degreesToCardinal(degrees);
+          document.getElementById("direction").textContent =
+            `${cardinal} (${degrees}°)`;
+        }
+        if (batteryMatch)
+          document.getElementById("battery").textContent = batteryMatch[1];
+        if (tempMatch)
+          document.getElementById("temperature").textContent = tempMatch[1];
+      }
+
+      function degreesToCardinal(degrees) {
+        const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+        const index = Math.round(degrees / 45) % 8;
+        return directions[index];
+      }
+
+      function logout() {
+        stopResponseThread();
+
+        if (socket) {
+          socket.close();
+        }
+        currentUser = null;
+        currentRole = null;
+        clientResponse = "";
+        document.getElementById("dashboard").classList.add("hidden");
+        document.getElementById("loginScreen").classList.remove("hidden");
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("loginBtn").disabled = false;
+        document.getElementById("loginStatus").classList.add("hidden");
+      }
+
+      // === ADMIN FUNCTIONS ===
+      function sendCommand(command) {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          showCommandStatus("Not connected to server", "error");
+          return;
         }
 
-        // Response polling (same cadence as Python client)
-        function sendStatusToServer() {
-            if (!clientResponse || !socket || socket.readyState !== WebSocket.OPEN) {
-                return;
-            }
+        const message = createMessage("COMMAND", command);
+        socket.send(message);
+        showCommandStatus("Sending command...", "success");
+      }
 
-            console.log(`[STATUS] Sending: ${clientResponse}`);
-            const statusMessage = createMessage('STATUS', clientResponse);
-            socket.send(statusMessage);
-            
-            clientResponse = "";
+      function showCommandStatus(message, type) {
+        const statusDiv = document.getElementById("commandStatus");
+        statusDiv.textContent = message;
+        statusDiv.className = `status-message ${type}`;
+        statusDiv.classList.remove("hidden");
+
+        setTimeout(() => {
+          statusDiv.classList.add("hidden");
+        }, 3000);
+      }
+
+      function showUsersModal() {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          showCommandStatus("Not connected to server", "error");
+          return;
         }
 
-        function startResponseThread() {
-            if (responseInterval) {
-                clearInterval(responseInterval);
-            }
-            
-            responseInterval = setInterval(() => {
-                if (!clientResponse) {
-                    console.log('[CLIENT] No pending STATUS');
-                } else {
-                    sendStatusToServer();
-                }
-            }, 2000);
-            
-            console.log('[RESPONSE THREAD] Started — poll every 2s');
-        }
+        console.log("[LIST] Requesting user list...");
+        const message = createMessage("LIST", "");
+        awaitingUserList = true;
+        socket.send(message);
+        document.getElementById("usersModal").classList.remove("hidden");
+      }
 
-        function stopResponseThread() {
-            if (responseInterval) {
-                clearInterval(responseInterval);
-                responseInterval = null;
-                console.log('[RESPONSE THREAD] Stopped');
-            }
-        }
+      function closeUsersModal() {
+        document.getElementById("usersModal").classList.add("hidden");
+      }
 
-        // === LOGIN ===
-        document.getElementById('loginBtn').addEventListener('click', doLogin);
-        document.getElementById('password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') doLogin();
-        });
+      function displayUsers(data) {
+        console.log("[LIST] Parsing users:", data);
+        const tbody = document.getElementById("usersTableBody");
+        tbody.innerHTML = "";
 
-        function showLoginStatus(message, type) {
-            const statusDiv = document.getElementById('loginStatus');
-            statusDiv.textContent = message;
-            statusDiv.className = `login-status ${type}`;
-            statusDiv.classList.remove('hidden');
-        }
+        // Parse user data: "user1:ADMIN:192.168.1.1,user2:OBSERVER:192.168.1.2"
+        const users = data.split(",").filter((u) => u.trim());
 
-        function doLogin() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const loginBtn = document.getElementById('loginBtn');
+        console.log("[LIST] Users:", users.length);
 
-            if (!username || !password) {
-                showLoginStatus('Enter username and password', 'error');
-                return;
-            }
+        users.forEach((userStr) => {
+          const parts = userStr.trim().split(":");
+          console.log("  - parts:", parts);
 
-            loginBtn.disabled = true;
-            showLoginStatus('Connecting...', 'connecting');
-
-            socket = new WebSocket('ws://127.0.0.1:8080');
-
-    socket.onopen = () => {
-                showLoginStatus('Signing in...', 'connecting');
-                
-                const loginData = `${username};${password}`;
-                const message = createMessage('LOGIN', loginData);
-                
-                awaitingAuth = true;
-                currentUser = username;
-                socket.send(message);
-            };
-
-            socket.onmessage = (event) => {
-                const parsed = parseResponse(event.data);
-                
-                if (!parsed) {
-                    return;
-                }
-
-                console.log('[MESSAGE] Received:', parsed.action, '|', parsed.data.substring(0, 50));
-
-                // Handle authentication response
-                if (awaitingAuth && parsed.action === 'OK') {
-                    awaitingAuth = false;
-                    
-                    // Extract role
-                    const roleMatch = parsed.data.match(/role=(\w+)/);
-                    currentRole = roleMatch ? roleMatch[1] : 'OBSERVER';
-                    
-                    showDashboard();
-                    startResponseThread();
-                    return;
-                }
-
-                // Handle authentication error
-                if (awaitingAuth && parsed.action === 'ERROR') {
-                    awaitingAuth = false;
-                    document.getElementById('loginBtn').disabled = false;
-                    showLoginStatus('Invalid credentials', 'error');
-                    socket.close();
-                    return;
-                }
-
-                // Handle telemetry data
-                if (parsed.action === 'DATA') {
-                    try {
-                        updateTelemetry(parsed.data);
-                        clientResponse = "OK";
-                    } catch (error) {
-                        console.error('[TELEMETRY] Update error:', error);
-                        clientResponse = "ERROR";
-                    }
-                    return;
-                }
-
-                // Handle command responses
-                if (parsed.action === 'OK' && parsed.data.includes('COMMAND_OK')) {
-                    showCommandStatus('Command completed', 'success');
-                    clientResponse = "OK";
-                    return;
-                }
-
-                if (parsed.action === 'DENIED') {
-                    showCommandStatus('Permission denied', 'error');
-                    clientResponse = "OK";
-                    return;
-                }
-
-                // Handle user list
-                if (awaitingUserList && parsed.action === 'OK') {
-                    console.log('[LIST] User list:', parsed.data);
-                    awaitingUserList = false;
-                    displayUsers(parsed.data);
-                    clientResponse = "OK";
-                    return;
-                }
-            };
-
-            socket.onerror = (error) => {
-                console.error('[WEBSOCKET] Error:', error);
-                showLoginStatus('Connection error', 'error');
-                document.getElementById('loginBtn').disabled = false;
-                awaitingAuth = false;
-                clientResponse = "ERROR";
-            };
-
-            socket.onclose = () => {
-                stopResponseThread();
-                
-                if (awaitingAuth) {
-                    showLoginStatus('Connection closed', 'error');
-                    document.getElementById('loginBtn').disabled = false;
-                    awaitingAuth = false;
-                }
-            };
-        }
-
-        // === DASHBOARD ===
-        function showDashboard() {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
-            
-            document.getElementById('dashboardUsername').textContent = currentUser;
-            document.getElementById('dashboardRole').textContent = currentRole;
-            
-            // Show admin controls only for ADMIN
-            const adminControls = document.getElementById('adminControls');
-            if (currentRole === 'ADMIN') {
-                adminControls.classList.remove('hidden');
-            } else {
-                adminControls.classList.add('hidden');
-            }
-        }
-
-        function updateTelemetry(data) {
-            const speedMatch = data.match(/speed=([\d.]+)/);
-            const dirMatch = data.match(/dir=([\d.]+)/);
-            const batteryMatch = data.match(/battery=([\d.]+)/);
-            const tempMatch = data.match(/temp=([\d.]+)/);
-
-            if (speedMatch) document.getElementById('speed').textContent = speedMatch[1];
-            if (dirMatch) {
-                const degrees = parseFloat(dirMatch[1]);
-                const cardinal = degreesToCardinal(degrees);
-                document.getElementById('direction').textContent = `${cardinal} (${degrees}°)`;
-            }
-            if (batteryMatch) document.getElementById('battery').textContent = batteryMatch[1];
-            if (tempMatch) document.getElementById('temperature').textContent = tempMatch[1];
-        }
-
-        function degreesToCardinal(degrees) {
-            const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-            const index = Math.round(degrees / 45) % 8;
-            return directions[index];
-        }
-
-        function logout() {
-            stopResponseThread();
-            
-            if (socket) {
-                socket.close();
-            }
-            currentUser = null;
-            currentRole = null;
-            clientResponse = "";
-            document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('loginBtn').disabled = false;
-            document.getElementById('loginStatus').classList.add('hidden');
-        }
-
-        // === ADMIN FUNCTIONS ===
-        function sendCommand(command) {
-            if (!socket || socket.readyState !== WebSocket.OPEN) {
-                showCommandStatus('Not connected to server', 'error');
-                return;
-            }
-
-            const message = createMessage('COMMAND', command);
-            socket.send(message);
-            showCommandStatus('Sending command...', 'success');
-        }
-
-        function showCommandStatus(message, type) {
-            const statusDiv = document.getElementById('commandStatus');
-            statusDiv.textContent = message;
-            statusDiv.className = `status-message ${type}`;
-            statusDiv.classList.remove('hidden');
-            
-            setTimeout(() => {
-                statusDiv.classList.add('hidden');
-            }, 3000);
-        }
-
-        function showUsersModal() {
-            if (!socket || socket.readyState !== WebSocket.OPEN) {
-                showCommandStatus('Not connected to server', 'error');
-                return;
-            }
-
-            console.log('[LIST] Requesting user list...');
-            const message = createMessage('LIST', '');
-            awaitingUserList = true;
-            socket.send(message);
-            document.getElementById('usersModal').classList.remove('hidden');
-        }
-
-        function closeUsersModal() {
-            document.getElementById('usersModal').classList.add('hidden');
-        }
-
-        function displayUsers(data) {
-            console.log('[LIST] Parsing users:', data);
-            const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '';
-
-            // Parse user data: "user1:ADMIN:192.168.1.1,user2:OBSERVER:192.168.1.2"
-            const users = data.split(',').filter(u => u.trim());
-            
-            console.log('[LIST] Users:', users.length);
-            
-            users.forEach(userStr => {
-                const parts = userStr.trim().split(':');
-                console.log('  - parts:', parts);
-                
-                if (parts.length >= 3 && parts[1] !== 'NONE') {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
+          if (parts.length >= 3 && parts[1] !== "NONE") {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
                         <td>${parts[0]}</td>
                         <td>${parts[1]}</td>
                         <td>${parts[2]}</td>
                     `;
-                    tbody.appendChild(tr);
-                }
-            });
+            tbody.appendChild(tr);
+          }
+        });
 
-            if (tbody.children.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color: #666;">No connected users</td></tr>';
-            }
+        if (tbody.children.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="3" style="text-align:center; color: #666;">No connected users</td></tr>';
         }
-</script>
-</body>
+      }
+    </script>
+  </body>
 </html>
