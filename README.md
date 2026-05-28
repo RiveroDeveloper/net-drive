@@ -178,6 +178,61 @@ npx http-server -p 3000
 
 All clients must target the **same TCP port** as the C server.
 
+## Deployment (Current Public Setup)
+
+This project is currently deployed with a split architecture:
+
+- Frontend (static web app): Vercel  
+- Backend (C TCP server + Node WebSocket bridge): Ubuntu VPS  
+- TLS termination and reverse proxy: Nginx on VPS
+
+### Public endpoints
+
+- Public frontend URL: `https://net-drive-kappa.vercel.app/`
+- Public WebSocket endpoint used by the frontend: `wss://rivero-netdrive.duckdns.org/ws/`
+
+### How this deployment works
+
+1. The browser loads `index.html` from Vercel.
+2. At startup, the app reads `WS_URL` from `env.js` (generated during Vercel build from `NETRIDE_WS_URL`).
+3. The frontend opens a secure WebSocket connection to `wss://rivero-netdrive.duckdns.org/ws/`.
+4. Nginx receives `/ws/` and proxies it to the local Node bridge on `127.0.0.1:8080`.
+5. The Node bridge forwards protocol frames to the C server on `127.0.0.1:2000`.
+6. Telemetry and command responses flow back through the same path to the browser.
+
+### VPS service model
+
+The backend side runs as persistent `systemd` services:
+
+- `netride-backend.service` -> C server (`server 2000 server.log`)
+- `netride-bridge.service` -> Node bridge (`server.js 2000`)
+
+This keeps both processes running after reboot and allows standard log inspection with `journalctl`.
+
+### Nginx role
+
+Nginx is configured to:
+
+- Serve ACME challenges at `/.well-known/acme-challenge/` for certificate renewal
+- Redirect HTTP to HTTPS
+- Terminate TLS for `rivero-netdrive.duckdns.org`
+- Proxy `/ws/` requests to `127.0.0.1:8080` with WebSocket upgrade headers
+
+### Environment variable strategy (no hardcoded public endpoint in source)
+
+The frontend uses a runtime config file:
+
+- `env.js` (generated at build time, not committed)
+- `env.example.js` (committed template)
+
+In Vercel:
+
+- `NETRIDE_WS_URL` is defined in project Environment Variables
+- Build command runs `node scripts/generate-env.js`
+- The script writes `env.js` with the selected WebSocket URL
+
+This avoids committing deployment-specific endpoint values to the repository.
+
 ## Project layout
 
 ```
@@ -225,6 +280,25 @@ netride/
 | Commands ignored | User must be ADMIN; server logs |
 | Random disconnect | `server.log`, STATUS ERROR count (3 strikes) |
 | No log file | Write permissions; `logger.c` linked in binary |
+
+### Browser privacy/protection settings and WebSocket failures
+
+If login shows a generic connection error but backend services are healthy, the browser may be blocking cross-site WebSocket traffic due to strict privacy or anti-tracking protections.
+
+Typical symptoms:
+
+- Console shows `WebSocket connection ... failed`
+- Network panel shows a `ws` request without a completed handshake (`101`)
+- The same deployment works after relaxing privacy protections for that site
+
+Recommended checks:
+
+1. Temporarily disable strict tracking protection for the frontend domain.
+2. Allow third-party connections for the site (or create a site exception).
+3. Hard refresh and retry login.
+4. Test in a second browser profile to confirm whether the issue is browser-policy related.
+
+For production environments, using a single domain strategy (for example app and websocket under the same parent domain) reduces this class of browser blocking issues.
 
 ## Extending
 
