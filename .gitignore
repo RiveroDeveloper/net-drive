@@ -13,9 +13,12 @@ server/*.out
 
 # Archivos de logs
 *.log
-*.txt
 logs/
 server/logs/
+server/*.txt
+
+# Excepción: no ignorar requirements.txt del cliente Python
+!clients/python_client/requirements.txt
 
 # ===== Python =====
 __pycache__/
